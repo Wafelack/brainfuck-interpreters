@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "../lib/lexer.h"
+#include "../lib/parser.h"
 
 #define USAGE -1
 #define NOT_FOUND -2
@@ -22,7 +24,11 @@ int main(int argc, char **argv)
 
         fgets(buf, size, fp);
 
-        printf("%s", buf);
+        Lexer lexer = new (buf);
+
+        scan(&lexer);
+
+        run(&lexer);
     }
     else
     {

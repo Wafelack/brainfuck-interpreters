@@ -10,7 +10,8 @@ typedef enum
     DOT,
     COMA,
     LEFT_BRACE,
-    RIGHT_BRACE
-}
+    RIGHT_BRACE,
+    END
+} Token;
 
 #endif
