@@ -28,5 +28,10 @@ fn main() {
     let tokens = scanner.scan_tokens();
 
     let ccode = parse(tokens);
-    println!("{}", ccode);
+    let path = std::path::PathBuf::from(&args[1]);
+
+    let fname = path.file_stem().unwrap();
+
+    let fullname = format!("{}.c", fname.to_str().unwrap());
+    println!("{}", fullname);
 }
