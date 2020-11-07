@@ -2,8 +2,6 @@
 pub enum Token {
     LeftBrace,
     RightBrace,
-    LeftParen,
-    RightParen,
     Plus,
     Minus,
     Coma,
