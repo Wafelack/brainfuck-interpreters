@@ -4,6 +4,8 @@ mod scanner;
 use parser::parser::parse;
 use scanner::scanner::Scanner;
 
+use std::io::Write;
+
 fn usage() {
     eprintln!("Usage : brainrust <file>");
     std::process::exit(-56);
@@ -33,5 +35,15 @@ fn main() {
     let fname = path.file_stem().unwrap();
 
     let fullname = format!("{}.c", fname.to_str().unwrap());
-    println!("{}", fullname);
+
+    if std::path::Path::new(&fullname).exists() {
+        eprintln!(
+            "A file named {} already exists ! Please delete it before transpilation.",
+            &fullname
+        );
+        usage();
+    }
+    let mut file = std::fs::File::create(&fullname).unwrap();
+
+    file.write_all(ccode.as_bytes()).unwrap();
 }
