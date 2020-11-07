@@ -2,7 +2,7 @@ use crate::scanner::tokens::Token;
 
 pub fn parse(toks: Vec<Token>) -> String {
     let mut code =
-        String::from("#include <stdio.h>\n\nint main(void) {\nunsigned char tab[1024];\nunsigned char *ptr = tab;\n");
+        String::from("#include <stdio.h>\n\nint main(void) {\nunsigned char tab[1024] = {0};\nunsigned char *ptr = tab;\n");
 
     for tok in toks {
         match tok {

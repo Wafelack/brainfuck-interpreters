@@ -46,4 +46,11 @@ fn main() {
     let mut file = std::fs::File::create(&fullname).unwrap();
 
     file.write_all(ccode.as_bytes()).unwrap();
+
+    // std::process::Command::new("gcc")
+    //     .arg(&fullname)
+    //     .arg("-o")
+    //     .arg(fname)
+    //     .status()
+    //     .unwrap();
 }
