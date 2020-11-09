@@ -5,6 +5,7 @@ use parser::parser::parse;
 use scanner::scanner::Scanner;
 
 use std::io::Write;
+use std::process::Command;
 
 fn usage() {
     eprintln!("Usage : brainrust <file>");
@@ -47,10 +48,24 @@ fn main() {
 
     file.write_all(ccode.as_bytes()).unwrap();
 
-    std::process::Command::new("gcc")
+    let status = Command::new("gcc")
         .arg(&fullname)
         .arg("-o")
         .arg(fname)
         .status()
         .unwrap();
+
+    if status.code().unwrap() == 0 {
+        if cfg!(windows) {
+            Command::new(format!(".\\{}.exe", fname.to_str().unwrap()))
+                .status()
+                .unwrap();
+        } else {
+            Command::new(format!("./{}", fname.to_str().unwrap()))
+                .status()
+                .unwrap();
+        }
+    } else {
+        println!("Compilation unsuccessful. Aborting.");
+    }
 }
