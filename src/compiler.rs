@@ -1,4 +1,4 @@
-use crate::{Result, Error};
+use crate::{Error, Result};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum OpCode {
@@ -17,17 +17,21 @@ use std::fmt::{self, Display, Formatter};
 
 impl Display for OpCode {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            Self::Display => "DISPLAY",
-            Self::Input => "INPUT",
-            Self::Inc => "INC",
-            Self::Dec => "DEC",
-            Self::Next => "NEXT",
-            Self::Prev => "PREV",
-            Self::Jmp => "JMP",
-            Self::Label=> "LABEL",
-            Self::Nop => "NOP",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Display => "DISPLAY",
+                Self::Input => "INPUT",
+                Self::Inc => "INC",
+                Self::Dec => "DEC",
+                Self::Next => "NEXT",
+                Self::Prev => "PREV",
+                Self::Jmp => "JMP",
+                Self::Label => "LABEL",
+                Self::Nop => "NOP",
+            }
+        )
     }
 }
 
@@ -74,7 +78,10 @@ impl Compiler {
             }
             ']' => {
                 if self.current < 1 {
-                    Err(Error(format!("{}:{} | Mismatched closing delimiter.", self.line, self.pos)))
+                    Err(Error(format!(
+                        "{}:{} | Mismatched closing delimiter.",
+                        self.line, self.pos
+                    )))
                 } else {
                     self.current -= 1;
                     Ok(OpCode::Jmp)
@@ -86,11 +93,10 @@ impl Compiler {
                 OpCode::Nop
             } else {
                 OpCode::Nop
-            })
+            }),
         }
     }
     pub fn compile(&mut self) -> Result<(Vec<OpCode>, usize)> {
-
         for chr in self.input.clone().chars() {
             self.pos += 1;
             let to_push = self.compile_char(chr)?;
@@ -98,7 +104,10 @@ impl Compiler {
         }
 
         if self.current != 0 {
-            Err(Error(format!("{}:{} | {} loops were not closed.", self.line, self.pos, self.current)))
+            Err(Error(format!(
+                "{}:{} | {} loops were not closed.",
+                self.line, self.pos, self.current
+            )))
         } else {
             Ok((self.output.clone(), self.to_alloc))
         }
@@ -112,7 +121,17 @@ mod test {
     #[test]
     fn loops() -> Result<()> {
         let (opcodes, _) = Compiler::new("[[[]]]").compile()?;
-        assert_eq!(opcodes, vec![OpCode::Label, OpCode::Label, OpCode::Label, OpCode::Jmp, OpCode::Jmp, OpCode::Jmp]);
+        assert_eq!(
+            opcodes,
+            vec![
+                OpCode::Label,
+                OpCode::Label,
+                OpCode::Label,
+                OpCode::Jmp,
+                OpCode::Jmp,
+                OpCode::Jmp
+            ]
+        );
         Ok(())
     }
 
@@ -125,14 +144,20 @@ mod test {
     #[test]
     fn values() -> Result<()> {
         let (opcodes, _) = Compiler::new("+--+").compile()?;
-        assert_eq!(opcodes, vec![OpCode::Inc, OpCode::Dec, OpCode::Dec, OpCode::Inc]);
+        assert_eq!(
+            opcodes,
+            vec![OpCode::Inc, OpCode::Dec, OpCode::Dec, OpCode::Inc]
+        );
         Ok(())
     }
 
     #[test]
     fn pointers() -> Result<()> {
         let (opcodes, _) = Compiler::new(">><<").compile()?;
-        assert_eq!(opcodes, vec![OpCode::Next, OpCode::Next, OpCode::Prev, OpCode::Prev]);
+        assert_eq!(
+            opcodes,
+            vec![OpCode::Next, OpCode::Next, OpCode::Prev, OpCode::Prev]
+        );
         Ok(())
     }
 
@@ -142,11 +167,11 @@ mod test {
         assert_eq!(opcodes, vec![OpCode::Display, OpCode::Input]);
         Ok(())
     }
-    
+
     #[test]
     fn comments() -> Result<()> {
         let (opcodes, _) = Compiler::new("Hello World !").compile()?;
-        assert_eq!(opcodes, vec![OpCode::Nop ; opcodes.len()]);
+        assert_eq!(opcodes, vec![OpCode::Nop; opcodes.len()]);
         Ok(())
     }
 }
