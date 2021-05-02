@@ -1,71 +1,22 @@
-mod parser;
-mod scanner;
+mod compiler;
 
-use parser::parser::parse;
-use scanner::scanner::Scanner;
+use compiler::Compiler;
+use std::io;
 
-use std::io::Write;
-use std::process::Command;
-
-fn usage() {
-    eprintln!("Usage : brainrust <file>");
-    std::process::exit(-56);
-}
-
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
-
-    if args.len() != 2 {
-        usage();
-    }
-
-    if !std::path::Path::new(&args[1]).exists() {
-        eprintln!("File not found");
-        usage();
-    }
-
-    let source = std::fs::read_to_string(&args[1]).unwrap();
-
-    let mut scanner = Scanner::new(source);
-
-    let tokens = scanner.scan_tokens();
-
-    let ccode = parse(tokens);
-    let path = std::path::PathBuf::from(&args[1]);
-
-    let fname = path.file_stem().unwrap();
-
-    let fullname = format!("{}.c", fname.to_str().unwrap());
-
-    if std::path::Path::new(&fullname).exists() {
-        eprintln!(
-            "A file named {} already exists ! Please delete it before transpilation.",
-            &fullname
-        );
-        usage();
-    }
-    let mut file = std::fs::File::create(&fullname).unwrap();
-
-    file.write_all(ccode.as_bytes()).unwrap();
-
-    let status = Command::new("gcc")
-        .arg(&fullname)
-        .arg("-o")
-        .arg(fname)
-        .status()
-        .unwrap();
-
-    if status.code().unwrap() == 0 {
-        if cfg!(windows) {
-            Command::new(format!(".\\{}.exe", fname.to_str().unwrap()))
-                .status()
-                .unwrap();
-        } else {
-            Command::new(format!("./{}", fname.to_str().unwrap()))
-                .status()
-                .unwrap();
-        }
-    } else {
-        println!("Compilation unsuccessful. Aborting.");
+fn main() -> Result<()> {
+    loop {
+        let mut buffer = String::new();
+        io::stdin().read_line(&mut buffer).unwrap();
+        let opcodes = Compiler::new(buffer.trim()).compile()?;
+        println!("\n[INSTRUCTIONS]");
+        opcodes.0.into_iter().enumerate().for_each(|(idx, opcode)| {
+            println!("0x{:04x}: {}", idx, opcode)
+        });
+        println!("\nTo allocate: 0x{:02x}.", opcodes.1);
     }
 }
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(Debug)]
+pub struct Error(String);
