@@ -7,8 +7,8 @@ pub enum OpCode {
     Dec,
     Next,
     Prev,
-    Jmp(u16),
-    Label(u16),
+    Jmp,
+    Label,
     Input,
     Nop,
 }
@@ -17,17 +17,17 @@ use std::fmt::{self, Display, Formatter};
 
 impl Display for OpCode {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Self::Display => write!(f, "DISPLAY"),
-            Self::Input => write!(f, "INPUT"),
-            Self::Inc => write!(f, "INC"),
-            Self::Dec => write!(f, "DEC"),
-            Self::Next => write!(f, "NEXT"),
-            Self::Prev => write!(f, "PREV"),
-            Self::Jmp(idx) => write!(f, "JMP   0x{:04x}", idx),
-            Self::Label(idx) => write!(f, "LABEL 0x{:04x}", idx),
-            Self::Nop => write!(f, "NOP"),
-        }
+        write!(f, "{}", match self {
+            Self::Display => "DISPLAY",
+            Self::Input => "INPUT",
+            Self::Inc => "INC",
+            Self::Dec => "DEC",
+            Self::Next => "NEXT",
+            Self::Prev => "PREV",
+            Self::Jmp => "JMP",
+            Self::Label=> "LABEL",
+            Self::Nop => "NOP",
+        })
     }
 }
 
@@ -49,7 +49,7 @@ impl Compiler {
             current: 0,
             pos: 0,
             line: 1,
-            to_alloc: 0,
+            to_alloc: 1,
         }
     }
     fn compile_char(&mut self, c: char) -> Result<OpCode> {
@@ -70,14 +70,14 @@ impl Compiler {
             ',' => Ok(OpCode::Input),
             '[' => {
                 self.current += 1;
-                Ok(OpCode::Label(self.current - 1))
+                Ok(OpCode::Label)
             }
             ']' => {
                 if self.current < 1 {
                     Err(Error(format!("{}:{} | Mismatched closing delimiter.", self.line, self.pos)))
                 } else {
                     self.current -= 1;
-                    Ok(OpCode::Jmp(self.current))
+                    Ok(OpCode::Jmp)
                 }
             }
             _ => Ok(if c == '\n' {
@@ -112,7 +112,7 @@ mod test {
     #[test]
     fn loops() -> Result<()> {
         let (opcodes, _) = Compiler::new("[[[]]]").compile()?;
-        assert_eq!(opcodes, vec![OpCode::Label(0x0), OpCode::Label(0x1), OpCode::Label(0x2), OpCode::Jmp(0x2), OpCode::Jmp(0x1), OpCode::Jmp(0x0)]);
+        assert_eq!(opcodes, vec![OpCode::Label, OpCode::Label, OpCode::Label, OpCode::Jmp, OpCode::Jmp, OpCode::Jmp]);
         Ok(())
     }
 
