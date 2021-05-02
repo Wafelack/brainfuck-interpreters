@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 libc = "0.2.94"
+clap = "2.33.3"

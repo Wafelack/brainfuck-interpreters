@@ -62,7 +62,7 @@ fn main() {
             Err(e) => compile_error(e.0),
         };
         let elapsed = start.elapsed();
-        println!("  \x1b[0;32mCompiled\x1b[0m in {} seconds.", elapsed.as_secs_f32());
+        println!("  \x1b[0;32mCompiled\x1b[0m in {:.02} seconds.", elapsed.as_secs_f32());
 
         let bytecode = if matches.is_present("clean") {
             let len = bytecode.len();

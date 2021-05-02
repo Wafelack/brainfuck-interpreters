@@ -7,6 +7,7 @@ pub struct VM {
     memory_pointer: usize,
     instruction_pointer: u16,
     labels: Vec<u16>,
+    output: String,
 }
 
 impl VM {
@@ -15,6 +16,7 @@ impl VM {
             code,
             memory_pointer: 0,
             instruction_pointer: 0,
+            output: String::new(),
             labels: vec![],
             memory: vec![0; to_alloc]
         }
@@ -33,7 +35,7 @@ impl VM {
             } else {
                 self.memory_pointer -= 1;
             }
-            OpCode::Display => print!("{}", self.memory[self.memory_pointer] as char),
+            OpCode::Display => self.output.push(self.memory[self.memory_pointer] as char),
             OpCode::Input => {
                 let got = unsafe {
                     getchar()
@@ -49,14 +51,15 @@ impl VM {
             OpCode::Nop => {},
         }
     }
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> (String, Vec<u8>, usize) {
 
         while (self.instruction_pointer as usize) < self.code.len() {
             let opcode = self.code[self.instruction_pointer as usize];
             self.run_opcode(opcode);
             self.instruction_pointer += 1;
-
         }
+
+        (self.output.clone(), self.memory.clone(), self.memory_pointer)
 
     }
 }
