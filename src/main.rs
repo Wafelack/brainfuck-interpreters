@@ -29,13 +29,6 @@ fn main() {
                 .help("The source file to compile."),
         )
         .arg(
-            Arg::with_name("output")
-                .short("o")
-                .long("output")
-                .takes_value(true)
-                .help("The file to output the bytecode in."),
-        )
-        .arg(
             Arg::with_name("clean")
                 .short("c")
                 .long("clean")
